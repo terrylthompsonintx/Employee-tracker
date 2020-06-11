@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/terrylthompsonintx/Employee-tracker#readme",
   "dependencies": {
+    "clear": "^0.1.0",
     "console.table": "^0.10.0",
     "inquirer": "^7.1.0",
     "mysql2": "^2.1.0",

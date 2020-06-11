@@ -56,14 +56,53 @@ connection.connect(err => {
     }
    ];
 
+async function viewdept (){
+  connection.promise().query ('SELECT * FROM department', function (err,results,fields){
+    clear();
+    console.table(results);
+  });
+};
+async function viewrole (){
+  connection.query ('SELECT * FROM role', function (err,results,fields){
+    clear();
+    console.table(results);
+    });
+
+};
+async function viewemp (){
+  connection.query ('SELECT * FROM employee', function (err,results,fields){
+    clear();
+    console.table(results);
+    });
+};      
 async function addARole(){
   clear();
   return inquirer.prompt(addrole);
 } 
-
 async function addADept(){
   clear();
   return inquirer.prompt([{type:'input',name:'newdept', message: 'Enter new department name'}])
+}
+async function addAEmployee(){
+  clear();
+  return inquirer.prompt([
+    {
+      type: 'input',
+      name: 'fname',
+      message: 'Enter new employee first name',
+    },
+    {
+      type: 'input',
+      name: 'lname',
+      message: 'Enter new employee last name',
+    },
+    {
+      type: 'list',
+      name: 'rname',
+      message: 'Select new employee role',
+      choices: ['Electronic Engineer','Software Engineer','Manager','Accountant','Marketing Advisor','Line assember']
+    }
+  ])
 }
 
 async function ask(){
@@ -72,31 +111,22 @@ async function ask(){
     let action = await inquirer.prompt(actions);
     console.log(action);
     if (action.selectedaction == 'View all departments'){
-      connection.promise().query ('SELECT * FROM department', function (err,results,fields){
-        clear();
-        console.table(results);
-      });
+      await viewdept ();
+    
     }
     if  (action.selectedaction== 'View all roles'){
-      connection.query ('SELECT * FROM role', function (err,results,fields){
-        clear();
-        console.table(results);
-        });
-      }
-      if  (action.selectedaction== 'View all employees'){
-        connection.query ('SELECT * FROM employee', function (err,results,fields){
-          clear();
-          console.table(results);
-          });
-      }
+      await viewrole ();
+      
+    };
+    if  (action.selectedaction== 'View all employees'){
+      await viewemp ();  
+    };
     if (action.selectedaction == 'Quit program.'){
       run = false;
       connection.end();
-    
     };
     if (action.selectedaction == 'Add a department'){
       let newdpt = await addADept();
-
       connection.query('INSERT INTO department SET ?',
       {
         name: newdpt.newdept
@@ -106,19 +136,50 @@ async function ask(){
         
       }
       );
+      viewdept ();
     };
     if (action.selectedaction == 'Add an employee'){
-     
-
+      let newEmp = await addAEmployee();
+      console.log(newEmp);
+        //(first_Name, last_Name, role_id, manager_id)
+      let newrole = null;
+      switch (newEmp.rname){
+        case 'Electronic Engineer':{
+          newrole=1;
+          break;
+        }
+        case 'Software Engineer':{
+          newrole=2;
+          break;
+        }
+        case 'Manager':{
+          newrole=3;
+          break;
+        }
+        case 'Accountant':{
+          newrole=4;
+          break;
+        }
+        case 'Marketing Advisor':{
+          newrole=5;
+          break;
+        }
+        case 'Line assember':{
+          newrole=6;
+          break;
+        }
+      };   
       connection.query('INSERT INTO employee SET ?',
       {
-      
+        first_name: newEmp.fname,
+        last_name: newEmp.lname,
+        role_id: newrole
       }, 
       function(err, res) {
         if (err) throw err;
-        
-      }
+        }
       );
+      await viewemp ();
     };
     if (action.selectedaction == 'Add a role'){
       let params = await addARole();
@@ -141,10 +202,9 @@ async function ask(){
           break;
         }
       }; 
-
       connection.query('INSERT INTO role SET ?',
       {
-      title: params.roleName ,
+      title: params.roleName,
       salary: params.roleSalary,
       department_id: did
       }, 
@@ -154,10 +214,8 @@ async function ask(){
       }
     );
     };
-
-
+    await viewrole ();
   }
-
 }
 
 

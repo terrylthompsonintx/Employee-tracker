@@ -25,8 +25,7 @@ connection.connect(err => {
    
 });  
 
-
-  var actions = [{
+var actions = [{
     type: 'list',
     name:'selectedaction',
     message: 'Select an action.',
@@ -56,25 +55,24 @@ connection.connect(err => {
     }
    ];
 
-async function viewdept (){
+async function viewdept(){
   connection.promise().query ('SELECT * FROM department', function (err,results,fields){
     clear();
     console.table(results);
-  });
-};
-async function viewrole (){
+    });
+}  
+async function viewrole(){
   connection.query ('SELECT * FROM role', function (err,results,fields){
     clear();
     console.table(results);
     });
-
-};
-async function viewemp (){
-  connection.query ('SELECT * FROM employee', function (err,results,fields){
+} 
+async function viewEmployee(){
+  connection.query ('SELECT first_name, last_name, title, salary FROM employee LEFT JOIN role on employee.role_id = role.r_id', function (err,results,fields){
     clear();
     console.table(results);
     });
-};      
+}  
 async function addARole(){
   clear();
   return inquirer.prompt(addrole);
@@ -104,6 +102,11 @@ async function addAEmployee(){
     }
   ])
 }
+async function upDateEmp(){
+  await viewEmployee();
+  return inquirer.prompt([{type: 'number', name: 'empid',message:'Enter employee\'s c_id'},{type:'list', name:'column', message:'Select colume to change', 
+  choices:['first_name','last_name','role_id']}, {type: 'input', message: 'Enter new value', name: 'newval'}]);
+}
 
 async function ask(){
   let run = true;
@@ -111,15 +114,14 @@ async function ask(){
     let action = await inquirer.prompt(actions);
     console.log(action);
     if (action.selectedaction == 'View all departments'){
-      await viewdept ();
-    
+      await viewdept();  
     }
     if  (action.selectedaction== 'View all roles'){
-      await viewrole ();
+      await viewrole();
       
     };
     if  (action.selectedaction== 'View all employees'){
-      await viewemp ();  
+       await viewEmployee();
     };
     if (action.selectedaction == 'Quit program.'){
       run = false;
@@ -136,7 +138,7 @@ async function ask(){
         
       }
       );
-      viewdept ();
+      await viewdept ();
     };
     if (action.selectedaction == 'Add an employee'){
       let newEmp = await addAEmployee();
@@ -179,7 +181,7 @@ async function ask(){
         if (err) throw err;
         }
       );
-      await viewemp ();
+      await viewEmployee();
     };
     if (action.selectedaction == 'Add a role'){
       let params = await addARole();
@@ -214,11 +216,68 @@ async function ask(){
       }
     );
     };
-    await viewrole ();
+    if (action.selectedaction == 'Update an employee'){
+      let changeval =await upDateEmp();
+      let thecolumn = changeval.column;
+      console.log(changeval);
+      if (changeval.column == 'last_name'){
+        connection.query(
+          'UPDATE employee SET ? WHERE ?',
+           [
+             {
+               last_name: changeval.newval
+             },
+             {
+               c_id: changeval.empid
+             }
+           ],
+           function(err, res) {
+             if (err) throw err;
+             
+           }
+         )
+      }
+      if (changeval.column == 'first_name'){
+        connection.query(
+          'UPDATE employee SET ? WHERE ?',
+           [
+             {
+               first_name: changeval.newval
+             },
+             {
+               c_id: changeval.empid
+             }
+           ],
+           function(err, res) {
+             if (err) throw err;
+             
+           }
+         )
+      }
+      if (changeval.column == 'role_id'){
+        connection.query(
+          'UPDATE employee SET ? WHERE ?',
+           [
+             {
+               role_id: changeval.newval
+             },
+             {
+               c_id: changeval.empid
+             }
+           ],
+           function(err, res) {
+             if (err) throw err;
+             
+           }
+         )
+      }
+      
+    }
+    
+    await viewEmployee();
+    clear();
   }
 }
-
-
 
 ask();
  

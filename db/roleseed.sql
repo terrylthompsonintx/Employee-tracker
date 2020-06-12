@@ -1,4 +1,4 @@
-INSERT INTO role (title, salary, department_id, manager_id) VALUES 
+INSERT INTO role (title, salary, department_id) VALUES 
 ('Electronic Engineer', 850000, 1),
 ('Software Engineer', 750000, 1),
 ('Manager', 900000, null),

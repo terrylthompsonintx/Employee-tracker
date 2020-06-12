@@ -54,35 +54,25 @@ var actions = [{
     choices:['Engineering','Accounting','Marketing','Manufacturing']
     }
    ];
-
-async function viewdept(){
-  connection.promise().query ('SELECT * FROM department', function (err,results,fields){
-    clear();
-    console.table(results);
-    });
-}  
-async function viewrole(){
-  connection.query ('SELECT * FROM role', function (err,results,fields){
-    clear();
-    console.table(results);
-    });
-} 
-async function viewEmployee(){
-  connection.query ('SELECT first_name, last_name, title, salary FROM employee LEFT JOIN role on employee.role_id = role.r_id', function (err,results,fields){
-    clear();
-    console.table(results);
-    });
-}  
+async function logo(){
+  console.log('--------------------');
+  console.log('|     Employee     |');
+  console.log('|      Tracker     |');
+  console.log('--------------------');
+}
+ 
+ 
+  
 async function addARole(){
-  clear();
+  //clear();
   return inquirer.prompt(addrole);
 } 
 async function addADept(){
-  clear();
+  //clear();
   return inquirer.prompt([{type:'input',name:'newdept', message: 'Enter new department name'}])
 }
 async function addAEmployee(){
-  clear();
+  //clear();
   return inquirer.prompt([
     {
       type: 'input',
@@ -111,17 +101,34 @@ async function upDateEmp(){
 async function ask(){
   let run = true;
   while (run){
+    ////clear();
+    logo()
     let action = await inquirer.prompt(actions);
-    console.log(action);
+    //console.log(action);
     if (action.selectedaction == 'View all departments'){
-      await viewdept();  
+      
+      connection.promise().query ('SELECT * FROM department', function (err,results,fields){
+        //clear();
+        console.table(results);
+        }); 
+        clear();
     }
     if  (action.selectedaction== 'View all roles'){
-      await viewrole();
+      connection.query ('SELECT * FROM role', function (err,results,fields){
+        clear();
+        console.table(results);
+        });
+        clear();
+        logo();
       
     };
     if  (action.selectedaction== 'View all employees'){
-       await viewEmployee();
+      connection.query ('SELECT c_id, first_name, last_name, title, salary FROM employee LEFT JOIN role on employee.role_id = role.r_id', function (err,results,fields){
+    
+        console.table(results);
+        
+        });
+        clear();
     };
     if (action.selectedaction == 'Quit program.'){
       run = false;
@@ -181,7 +188,11 @@ async function ask(){
         if (err) throw err;
         }
       );
-      await viewEmployee();
+      connection.query ('SELECT c_id, first_name, last_name, title, salary FROM employee LEFT JOIN role on employee.role_id = role.r_id', function (err,results,fields){
+    
+        console.table(results);
+        clear();
+        });
     };
     if (action.selectedaction == 'Add a role'){
       let params = await addARole();
@@ -274,8 +285,8 @@ async function ask(){
       
     }
     
-    await viewEmployee();
-    clear();
+    
+    //clear();
   }
 }
 

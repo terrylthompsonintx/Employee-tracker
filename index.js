@@ -64,15 +64,16 @@ async function logo(){
  
   
 async function addARole(){
-  //clear();
+  clear();
   return inquirer.prompt(addrole);
+  clear();
 } 
 async function addADept(){
-  //clear();
-  return inquirer.prompt([{type:'input',name:'newdept', message: 'Enter new department name'}])
+  clear();
+  return inquirer.prompt([{type:'input',name:'newdept', message: 'Enter new department name'}]);
 }
 async function addAEmployee(){
-  //clear();
+  clear();
   return inquirer.prompt([
     {
       type: 'input',
@@ -93,7 +94,7 @@ async function addAEmployee(){
   ])
 }
 async function upDateEmp(){
-  await viewEmployee();
+  clear();
   return inquirer.prompt([{type: 'number', name: 'empid',message:'Enter employee\'s c_id'},{type:'list', name:'column', message:'Select colume to change', 
   choices:['first_name','last_name','role_id']}, {type: 'input', message: 'Enter new value', name: 'newval'}]);
 }
@@ -101,14 +102,15 @@ async function upDateEmp(){
 async function ask(){
   let run = true;
   while (run){
-    ////clear();
+    
     logo()
     let action = await inquirer.prompt(actions);
-    //console.log(action);
+    clear();
+    logo();
     if (action.selectedaction == 'View all departments'){
       
       connection.promise().query ('SELECT * FROM department', function (err,results,fields){
-        //clear();
+        clear();
         console.table(results);
         }); 
         clear();
@@ -119,12 +121,12 @@ async function ask(){
         console.table(results);
         });
         clear();
-        logo();
+        
       
     };
     if  (action.selectedaction== 'View all employees'){
       connection.query ('SELECT c_id, first_name, last_name, title, salary FROM employee LEFT JOIN role on employee.role_id = role.r_id', function (err,results,fields){
-    
+        clear();
         console.table(results);
         
         });
@@ -145,12 +147,11 @@ async function ask(){
         
       }
       );
-      await viewdept ();
+      
     };
     if (action.selectedaction == 'Add an employee'){
       let newEmp = await addAEmployee();
-      console.log(newEmp);
-        //(first_Name, last_Name, role_id, manager_id)
+      
       let newrole = null;
       switch (newEmp.rname){
         case 'Electronic Engineer':{
@@ -228,9 +229,15 @@ async function ask(){
     );
     };
     if (action.selectedaction == 'Update an employee'){
+      connection.query ('SELECT c_id, first_name, last_name, title, salary FROM employee LEFT JOIN role on employee.role_id = role.r_id', function (err,results,fields){
+    
+        console.table(results);
+        
+        });
+        clear();
       let changeval =await upDateEmp();
-      let thecolumn = changeval.column;
-      console.log(changeval);
+      
+      
       if (changeval.column == 'last_name'){
         connection.query(
           'UPDATE employee SET ? WHERE ?',
@@ -281,12 +288,8 @@ async function ask(){
              
            }
          )
-      }
-      
+      }  
     }
-    
-    
-    //clear();
   }
 }
 
